@@ -1,11 +1,38 @@
-name: Test Semplice
+name: Recupera Tassi Mutui
 
 on:
+  schedule:
+    - cron: '0 7 * * *'
   workflow_dispatch:
 
 jobs:
-  test-job:
+  scrape-and-commit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Saluta
-        run: echo "Ciao mondo! Se vedi questo messaggio, il workflow funziona."
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install playwright
+
+      - name: Install Playwright browsers
+        run: playwright install --with-deps firefox
+
+      - name: Run scraper
+        run: python scraper_github.py
+
+      - name: Commit and push if changed
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Aggiornamento automatico tassi mutuo"
+          file_pattern: tassi.json
+          commit_user_name: "GitHub Action Bot"
+          commit_user_email: "actions@github.com"
+          commit_author: "GitHub Action Bot <actions@github.com>"
