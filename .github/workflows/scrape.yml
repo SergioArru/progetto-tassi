@@ -1,48 +1,11 @@
-name: Recupera Tassi Mutui
+name: Test Semplice
 
-# Trigger:
 on:
-  # 1. Esegui automaticamente ogni giorno alle 7:00 del mattino (ora UTC)
-  schedule:
-    - cron: '0 7 * * *'
-  # 2. Permetti di avviarlo manualmente dalla pagina Actions di GitHub
   workflow_dispatch:
 
 jobs:
-  permissions:      # <-- RIGA DA AGGIUNGERE
-    contents: write # <-- RIGA DA AGGIUNGERE
-  scrape-and-commit:
-    runs-on: ubuntu-latest # Usa una macchina virtuale Linux
-
+  test-job:
+    runs-on: ubuntu-latest
     steps:
-      # 1. Scarica il codice del tuo progetto sulla macchina virtuale
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # 2. Imposta l'ambiente Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      # 3. Installa le librerie Python necessarie
-      - name: Install dependencies
-        run: pip install playwright
-
-      # 4. Installa i browser per Playwright
-      - name: Install Playwright browsers
-        run: playwright install --with-deps firefox
-
-      # 5. Esegui lo script di scraping
-      - name: Run scraper
-        run: python scraper_github.py
-
-      # 6. Salva il file tassi.json generato nel repository
-      - name: Commit and push if changed
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Aggiornamento automatico tassi mutuo"
-          file_pattern: tassi.json
-          commit_user_name: "GitHub Action Bot"
-          commit_user_email: "actions@github.com"
-          commit_author: "GitHub Action Bot <actions@github.com>"
+      - name: Saluta
+        run: echo "Ciao mondo! Se vedi questo messaggio, il workflow funziona."
