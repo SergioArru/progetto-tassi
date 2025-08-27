@@ -1,0 +1,88 @@
+<!-- File: index.html -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tassi Mutuo Aggiornati</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1 { color: #1a237e; text-align: center; }
+        p.subtitle { text-align: center; color: #555; margin-top: -15px; }
+        #last-update { text-align: center; font-style: italic; color: #777; margin-bottom: 20px; }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .bank-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; background: #fafafa; }
+        h2 { margin-top: 0; color: #3949ab; border-bottom: 2px solid #c5cae9; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e0e0e0; }
+        th { font-weight: 600; }
+        td:last-child { font-weight: bold; text-align: right; }
+        .error { color: #c62828; background: #ffebee; border: 1px solid #c62828; padding: 15px; border-radius: 5px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Comparatore Tassi Fissi</h1>
+        <p class="subtitle">Dati recuperati automaticamente da MutuiOnline.it</p>
+        <div id="last-update">Caricamento dati...</div>
+        <div id="results-container" class="results-grid"></div>
+    </div>
+
+    <script>
+        // !!! PASSO FINALE: Sostituisci questa URL con quella del tuo file raw su GitHub !!!
+        const dataUrl = 'URL_DEL_TUO_FILE_TASSI.JSON';
+
+        async function fetchAndDisplayData() {
+            const resultsContainer = document.getElementById('results-container');
+            const lastUpdate = document.getElementById('last-update');
+            
+            try {
+                // Aggiungiamo un parametro casuale per evitare problemi di cache del browser
+                const response = await fetch(`${dataUrl}?v=${new Date().getTime()}`);
+                if (!response.ok) throw new Error('Rete non disponibile');
+                
+                const data = await response.json();
+                
+                // Aggiorna data ultimo aggiornamento
+                const lastModified = new Date(response.headers.get('Last-Modified'));
+                lastUpdate.textContent = `Ultimo aggiornamento: ${lastModified.toLocaleString('it-IT')}`;
+                
+                // Pulisci contenitore
+                resultsContainer.innerHTML = '';
+                displayData(data, resultsContainer);
+
+            } catch (error) {
+                console.error("Errore:", error);
+                resultsContainer.innerHTML = `<div class="error"><strong>Errore:</strong> Impossibile caricare i dati.</div>`;
+            }
+        }
+
+        function displayData(data, container) {
+             if (Object.keys(data).length === 0) {
+                container.innerHTML = `<p>Nessun dato trovato per le banche richieste.</p>`;
+                return;
+            }
+        
+            for (const banca in data) {
+                const bankData = data[banca];
+                const card = document.createElement('div');
+                card.className = 'bank-card';
+                let tableHTML = `<h2>${banca}</h2><table><tr><th>Durata</th><th>Tasso Fisso</th></tr>`;
+                const sortedDurations = Object.keys(bankData).sort((a, b) => a - b);
+                for (const durata of sortedDurations) {
+                    const tasso = bankData[durata];
+                    tableHTML += `<tr><td>${durata} anni</td><td>${tasso.toFixed(2)}%</td></tr>`;
+                }
+                tableHTML += '</table>';
+                card.innerHTML = tableHTML;
+                container.appendChild(card);
+            }
+        }
+
+        // Avvia al caricamento della pagina
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
+    </script>
+</body>
+</html>
