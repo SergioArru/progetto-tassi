@@ -1,5 +1,3 @@
-# File: .github/workflows/scrape.yml
-
 name: Recupera Tassi Mutui
 
 # Trigger:
@@ -11,6 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
+  permissions:      # <-- RIGA DA AGGIUNGERE
+    contents: write # <-- RIGA DA AGGIUNGERE
   scrape-and-commit:
     runs-on: ubuntu-latest # Usa una macchina virtuale Linux
 
